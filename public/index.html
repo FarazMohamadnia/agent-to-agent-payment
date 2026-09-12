@@ -21,6 +21,7 @@
       </div>
       <nav class="nav" id="nav">
         <button type="button" data-view="auth" class="nav-btn active">Auth</button>
+        <button type="button" data-view="phased" class="nav-btn">Phased demo</button>
         <button type="button" data-view="catalog" class="nav-btn">Public catalog</button>
         <button type="button" data-view="provider" class="nav-btn">Provider</button>
         <button type="button" data-view="buyer" class="nav-btn">Buyer</button>
@@ -70,6 +71,27 @@
             </label>
             <button class="btn primary" type="submit">Create account</button>
           </form>
+        </div>
+      </section>
+
+      <section class="view hidden" id="view-phased">
+        <div class="panel phased-hero">
+          <h2>Agent-to-agent phased run</h2>
+          <p class="muted">
+            One click runs the full architecture flow: Provider Agent lists a service,
+            Buyer Agent pays, platform validates payment, issues confirmation, notifies
+            the provider webhook, then admin marks payout. Each phase shows live results.
+          </p>
+          <div class="row wrap">
+            <button type="button" class="btn primary" id="btnRunPhased">Run full phased demo</button>
+            <button type="button" class="btn ghost" id="btnResetPhased">Reset phases</button>
+            <span class="pill" id="phasedStatus">Idle</span>
+          </div>
+        </div>
+        <div id="phaseList" class="phase-list"></div>
+        <div class="panel compact">
+          <h2>Run summary</h2>
+          <pre class="code" id="phaseSummary">Click “Run full phased demo” to start.</pre>
         </div>
       </section>
 

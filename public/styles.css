@@ -187,6 +187,37 @@ input:focus, textarea:focus, select:focus {
 }
 .toast.error { border-color: rgba(255, 107, 107, 0.5); }
 
+.phased-hero { margin-bottom: 1rem; }
+.phase-list { display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 1rem; }
+.phase-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  background: rgba(255,255,255,0.02);
+}
+.phase-card.pending { opacity: 0.55; }
+.phase-card.running {
+  border-color: rgba(126, 184, 255, 0.45);
+  box-shadow: 0 0 0 1px rgba(126, 184, 255, 0.15);
+}
+.phase-card.pass { border-color: rgba(62, 207, 142, 0.45); }
+.phase-card.fail { border-color: rgba(255, 107, 107, 0.5); }
+.phase-head {
+  display: flex; justify-content: space-between; gap: 0.75rem; align-items: baseline;
+  margin-bottom: 0.35rem;
+}
+.phase-title { font-weight: 600; }
+.phase-badge {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 0.2rem 0.55rem; border-radius: 999px; border: 1px solid var(--line);
+  color: var(--muted);
+}
+.phase-card.running .phase-badge { color: #9cc7ff; border-color: rgba(126, 184, 255, 0.4); }
+.phase-card.pass .phase-badge { color: #7dffb5; border-color: rgba(62, 207, 142, 0.4); }
+.phase-card.fail .phase-badge { color: #ff9b9b; border-color: rgba(255, 107, 107, 0.45); }
+.phase-desc { color: var(--muted); font-size: 0.84rem; margin-bottom: 0.5rem; }
+.phase-card .code { max-height: 180px; margin: 0; }
+
 @media (max-width: 960px) {
   .app-shell { grid-template-columns: 1fr; }
   .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }

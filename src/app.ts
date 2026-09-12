@@ -16,6 +16,7 @@ import orderRoutes from './routes/orderRoutes';
 import adminRoutes from './routes/adminRoutes';
 import devRoutes from './routes/devRoutes';
 import uiSupportRoutes from './routes/uiSupportRoutes';
+import { handleWebhookSinkPost } from './dev/webhookSink';
 
 function buildCorsOptions(): cors.CorsOptions {
   const origins = env.CORS_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean);
@@ -63,6 +64,16 @@ export function createApp(): Express {
     }),
   );
   app.use(cors(buildCorsOptions()));
+
+  // Raw body sink must be registered before express.json (HMAC needs exact bytes)
+  if (!isProduction) {
+    app.post(
+      '/api/dev/webhook-sink',
+      express.raw({ type: '*/*', limit: '1mb' }),
+      handleWebhookSinkPost,
+    );
+  }
+
   app.use(express.json({ limit: '1mb' }));
 
   const publicDir = path.join(__dirname, '..', 'public');

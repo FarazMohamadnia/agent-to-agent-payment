@@ -6,6 +6,10 @@ import { mockPaymentVerifier } from '../payments/MockPaymentVerifier';
 import { prisma } from '../db/prisma';
 import { AppError } from '../utils/errors';
 import { OrderStatus } from '@prisma/client';
+import {
+  handleWebhookSinkClear,
+  handleWebhookSinkList,
+} from '../dev/webhookSink';
 
 const router = Router();
 
@@ -40,5 +44,8 @@ router.post(
     }
   },
 );
+
+router.get('/webhook-sink', handleWebhookSinkList);
+router.delete('/webhook-sink', handleWebhookSinkClear);
 
 export default router;

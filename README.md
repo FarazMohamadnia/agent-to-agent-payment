@@ -27,6 +27,7 @@ API listens on `http://localhost:3000` by default.
 Open **http://localhost:3000/** for the English ops console:
 
 - Auth (login/register + one-click demo accounts)
+- **Phased demo** — one-click architecture walkthrough (two agents, pay, validate, webhook, payout)
 - Public catalog
 - Provider listings CRUD
 - Buyer order → mock pay → verify → status
