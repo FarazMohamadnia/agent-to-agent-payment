@@ -4,13 +4,18 @@
     user: JSON.parse(localStorage.getItem('ap_user') || 'null'),
     clientLogs: [],
     phaseRunning: false,
+    autoRunning: false,
   };
 
   const titles = {
+    autonomous: [
+      'Autonomous Agent Demo',
+      'One-click Agent-to-Agent commerce — discover, pay, prove, deliver (mock USDC only).',
+    ],
     auth: ['Auth', 'Sign in with seed accounts or register a new user.'],
     phased: [
-      'Phased demo',
-      'One-click architecture walkthrough: two agents, payment validation, webhook, payout.',
+      'Architecture Walkthrough',
+      '11-phase technical demo of the payment validation platform.',
     ],
     catalog: ['Public catalog', 'No auth required — safe fields only.'],
     provider: ['Provider', 'Create and manage listings (PROVIDER role).'],
@@ -197,6 +202,7 @@
       refreshWebhooks().catch(() => {});
     }
     if (name === 'phased') renderPhases();
+    if (name === 'autonomous') loadAutonomousDashboard();
   }
 
   function fillOrderId(id) {
@@ -248,7 +254,7 @@
       error: null,
     }));
     $('#phasedStatus').textContent = 'Idle';
-    $('#phaseSummary').textContent = 'Click “Run full phased demo” to start.';
+    $('#phaseSummary').textContent = 'Click “Run architecture walkthrough” to start.';
     renderPhases();
   }
 
@@ -588,6 +594,95 @@
     resetPhases();
   });
 
+  async function loadAutonomousDashboard() {
+    try {
+      const agentsRes = await api('GET', '/api/agents', undefined, { noAuth: true, quiet: true });
+      const buyer = (agentsRes.agents || []).find((a) => a.type === 'BUYER');
+      const buyerEl = $('#buyerCardBody');
+      if (buyer) {
+        buyerEl.innerHTML = `
+          <div><strong>${escapeHtml(buyer.name)}</strong></div>
+          <div class="meta">Wallet: ${escapeHtml(buyer.walletAddress)}</div>
+          <div class="meta">Balance: <strong>${escapeHtml(buyer.balance)} ${escapeHtml(buyer.currency)}</strong></div>
+          <div class="meta">Max transaction: ${escapeHtml(buyer.spendingPolicy?.maxTransaction || '—')} ${escapeHtml(buyer.currency)}</div>
+          <div class="meta">Daily limit: ${escapeHtml(buyer.spendingPolicy?.dailyLimit || '—')} (spent ${escapeHtml(buyer.spendingPolicy?.dailySpent || '0')})</div>
+          <div class="meta">Allowed token: ${escapeHtml(buyer.spendingPolicy?.allowedToken || 'USDC')}</div>
+        `;
+      } else {
+        buyerEl.innerHTML = '<div class="muted">Run <code>npm run seed</code> to load Research Agent.</div>';
+      }
+
+      const offersRes = await api('GET', '/api/offers', undefined, { noAuth: true, quiet: true });
+      const offers = offersRes.offers || [];
+      $('#offersList').innerHTML = offers.length
+        ? offers
+            .map(
+              (o) => `<article class="card">
+              <h3>${escapeHtml(o.agentName)}</h3>
+              <div class="meta">${escapeHtml(o.serviceName)} · ${escapeHtml(o.capability)}</div>
+              <div class="meta"><strong>${escapeHtml(o.price)} ${escapeHtml(o.currency)}</strong>${o.unitLabel ? ` / ${escapeHtml(o.unitLabel)}` : ''}</div>
+            </article>`,
+            )
+            .join('')
+        : '<div class="muted">No offers — seed the database.</div>';
+    } catch (err) {
+      $('#buyerCardBody').textContent = err.message;
+    }
+  }
+
+  function renderTimeline(steps) {
+    const root = $('#autoTimeline');
+    root.innerHTML = (steps || [])
+      .map((s) => {
+        const data = s.data
+          ? `<div class="tl-data">${escapeHtml(JSON.stringify(s.data, null, 2))}</div>`
+          : '';
+        return `<div class="tl-item ${escapeHtml(s.status)}">
+          <div class="tl-label">${escapeHtml(s.label)}</div>
+          <div class="tl-meta">${escapeHtml(s.status)}${s.at ? ` · ${escapeHtml(s.at)}` : ''}</div>
+          ${data}
+        </div>`;
+      })
+      .join('');
+  }
+
+  async function runAutonomous() {
+    if (state.autoRunning) return;
+    state.autoRunning = true;
+    $('#btnAutonomous').disabled = true;
+    $('#autoStatus').textContent = 'Running…';
+    $('#autoProof').textContent = 'Running…';
+    $('#autoResult').textContent = 'Running…';
+    renderTimeline([]);
+    try {
+      const data = await api(
+        'POST',
+        '/api/demo/autonomous',
+        { capability: 'weather-data', city: 'Dubai', quantity: 100 },
+        { noAuth: true },
+      );
+      renderTimeline(data.timeline || []);
+      $('#autoProof').textContent = JSON.stringify(data.result?.paymentProof || data, null, 2);
+      $('#autoResult').textContent = JSON.stringify(data.result?.serviceResult || {}, null, 2);
+      $('#autoStatus').textContent = data.ok ? 'Completed ✓' : 'Failed';
+      toast(data.ok ? 'Autonomous transaction complete' : 'Failed');
+      await loadAutonomousDashboard();
+    } catch (err) {
+      $('#autoStatus').textContent = 'Failed';
+      $('#autoProof').textContent = JSON.stringify(
+        { error: err.message, data: err.data },
+        null,
+        2,
+      );
+    } finally {
+      state.autoRunning = false;
+      $('#btnAutonomous').disabled = false;
+    }
+  }
+
+  $('#btnAutonomous').addEventListener('click', () => runAutonomous());
+  $('#btnRefreshAgents').addEventListener('click', () => loadAutonomousDashboard());
+
   // Auth
   $('#formLogin').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -843,6 +938,6 @@
   renderSession();
   renderClientLog();
   resetPhases();
-  showView('auth');
-  clientLog('info', 'UI ready. Calling API on the same origin.');
+  showView('autonomous');
+  clientLog('info', 'UI ready. DEMO MODE — NO REAL FUNDS.');
 })();

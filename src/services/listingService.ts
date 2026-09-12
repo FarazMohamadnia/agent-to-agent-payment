@@ -64,10 +64,16 @@ export function toPublicListing(listing: {
   currency: string;
   isActive: boolean;
   createdAt: Date;
+  capability?: string | null;
+  unitLabel?: string | null;
+  agentId?: string | null;
 }) {
   return {
     id: listing.id,
     providerId: listing.providerId,
+    agentId: listing.agentId ?? null,
+    capability: listing.capability ?? null,
+    unitLabel: listing.unitLabel ?? null,
     serviceName: listing.serviceName,
     description: listing.description,
     providerServerDomain: listing.providerServerDomain,

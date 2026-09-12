@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AgentPay Console</title>
+  <title>Agent Economy Demo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -13,15 +13,17 @@
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-mark">AP</div>
+        <div class="brand-mark">AE</div>
         <div>
-          <div class="brand-name">AgentPay</div>
-          <div class="brand-sub">Demo console</div>
+          <div class="brand-name">Agent Economy</div>
+          <div class="brand-sub">v2 commerce demo</div>
         </div>
       </div>
+      <div class="demo-banner">DEMO MODE — NO REAL FUNDS</div>
       <nav class="nav" id="nav">
-        <button type="button" data-view="auth" class="nav-btn active">Auth</button>
-        <button type="button" data-view="phased" class="nav-btn">Phased demo</button>
+        <button type="button" data-view="autonomous" class="nav-btn active">Autonomous Agent Demo</button>
+        <button type="button" data-view="phased" class="nav-btn">Architecture Walkthrough</button>
+        <button type="button" data-view="auth" class="nav-btn">Auth</button>
         <button type="button" data-view="catalog" class="nav-btn">Public catalog</button>
         <button type="button" data-view="provider" class="nav-btn">Provider</button>
         <button type="button" data-view="buyer" class="nav-btn">Buyer</button>
@@ -36,16 +38,58 @@
     <main class="main">
       <header class="topbar">
         <div>
-          <h1 id="viewTitle">Auth</h1>
-          <p class="muted" id="viewHint">Sign in with seed accounts or register a new user.</p>
+          <h1 id="viewTitle">Autonomous Agent Demo</h1>
+          <p class="muted" id="viewHint">One-click Agent-to-Agent commerce — discover, pay, prove, deliver.</p>
         </div>
         <div class="top-actions">
+          <span class="pill warn-pill">DEMO — NO REAL FUNDS</span>
           <span class="pill" id="envPill">localhost</span>
           <button type="button" class="btn ghost" id="btnLogout">Sign out</button>
         </div>
       </header>
 
-      <section class="view" id="view-auth">
+      <section class="view" id="view-autonomous">
+        <div class="grid-2">
+          <div class="panel" id="buyerCard">
+            <h2>Buyer Agent</h2>
+            <div class="muted" id="buyerCardBody">Loading…</div>
+          </div>
+          <div class="panel">
+            <h2>Available services</h2>
+            <div id="offersList" class="stack">Loading…</div>
+          </div>
+        </div>
+        <div class="panel phased-hero" style="margin-top:1rem">
+          <h2>Start Autonomous Agent Transaction</h2>
+          <p class="muted">
+            Research Agent discovers weather sellers, picks the cheapest, checks spending policy,
+            executes a <strong>mock USDC</strong> payment, generates payment proof, and receives the service.
+          </p>
+          <div class="row wrap">
+            <button type="button" class="btn primary" id="btnAutonomous">Start Autonomous Agent Transaction</button>
+            <button type="button" class="btn ghost" id="btnRefreshAgents">Refresh agents</button>
+            <span class="pill" id="autoStatus">Idle</span>
+          </div>
+        </div>
+        <div class="grid-2" style="margin-top:1rem">
+          <div class="panel">
+            <h2>Live agent activity</h2>
+            <div id="autoTimeline" class="timeline"></div>
+          </div>
+          <div class="stack gap" style="margin:0">
+            <div class="panel">
+              <h2>Payment proof</h2>
+              <pre class="code" id="autoProof">Waiting for run…</pre>
+            </div>
+            <div class="panel">
+              <h2>Service result</h2>
+              <pre class="code" id="autoResult">Waiting for run…</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view hidden" id="view-auth">
         <div class="grid-2">
           <form id="formLogin" class="panel">
             <h2>Sign in</h2>
@@ -76,14 +120,13 @@
 
       <section class="view hidden" id="view-phased">
         <div class="panel phased-hero">
-          <h2>Agent-to-agent phased run</h2>
+          <h2>Architecture walkthrough</h2>
           <p class="muted">
-            One click runs the full architecture flow: Provider Agent lists a service,
-            Buyer Agent pays, platform validates payment, issues confirmation, notifies
-            the provider webhook, then admin marks payout. Each phase shows live results.
+            Detailed 11-phase technical demonstration of the payment validation platform
+            (Provider/Buyer users, orders, mock-pay, webhooks, admin payout).
           </p>
           <div class="row wrap">
-            <button type="button" class="btn primary" id="btnRunPhased">Run full phased demo</button>
+            <button type="button" class="btn primary" id="btnRunPhased">Run architecture walkthrough</button>
             <button type="button" class="btn ghost" id="btnResetPhased">Reset phases</button>
             <span class="pill" id="phasedStatus">Idle</span>
           </div>

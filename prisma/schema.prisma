@@ -21,6 +21,11 @@ enum OrderStatus {
   payout_sent
 }
 
+enum AgentType {
+  BUYER
+  SELLER
+}
+
 model User {
   id           String    @id @default(uuid())
   email        String    @unique
@@ -35,6 +40,12 @@ model Listing {
   id                    String   @id @default(uuid())
   providerId            String
   provider              User     @relation(fields: [providerId], references: [id])
+  /// Optional link to V2 Seller Agent (additive; phased demo listings may omit)
+  agentId               String?
+  agent                 Agent?   @relation(fields: [agentId], references: [id])
+  /// Capability tag for discovery, e.g. weather-data
+  capability            String?
+  unitLabel             String?
   serviceName           String
   description           String
   providerServerDomain  String
@@ -47,6 +58,7 @@ model Listing {
   isActive              Boolean  @default(true)
   createdAt             DateTime @default(now())
   orders                Order[]
+  quotes                Quote[]
 }
 
 model Order {
@@ -76,4 +88,74 @@ model WebhookDeliveryLog {
   responseSnippet String?
   attemptedAt     DateTime @default(now())
   success         Boolean
+}
+
+/// V2 software agent (buyer or seller) with mock wallet + spending policy
+model Agent {
+  id              String    @id @default(uuid())
+  name            String
+  type            AgentType
+  description     String
+  walletAddress   String    @unique
+  balance         Decimal   @default(0)
+  currency        String    @default("USDC")
+  /// JSON array string, e.g. ["weather-data","discovery"]
+  capabilities    String    @default("[]")
+  status          String    @default("active")
+  maxTransaction  Decimal?
+  dailyLimit      Decimal?
+  dailySpent      Decimal   @default(0)
+  allowedToken    String    @default("USDC")
+  createdAt       DateTime  @default(now())
+  listings        Listing[]
+  quotesAsBuyer   Quote[]   @relation("QuoteBuyer")
+  quotesAsSeller  Quote[]   @relation("QuoteSeller")
+  paymentsFrom    AgentPayment[] @relation("PaymentFrom")
+  paymentsTo      AgentPayment[] @relation("PaymentTo")
+}
+
+model Quote {
+  id            String   @id @default(uuid())
+  buyerAgentId  String
+  buyerAgent    Agent    @relation("QuoteBuyer", fields: [buyerAgentId], references: [id])
+  sellerAgentId String
+  sellerAgent   Agent    @relation("QuoteSeller", fields: [sellerAgentId], references: [id])
+  listingId     String
+  listing       Listing  @relation(fields: [listingId], references: [id])
+  price         Decimal
+  currency      String
+  quantity      Int
+  status        String   @default("offered")
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+  payment       AgentPayment?
+}
+
+model AgentPayment {
+  id                 String           @id @default(uuid())
+  quoteId            String?          @unique
+  quote              Quote?           @relation(fields: [quoteId], references: [id])
+  fromAgentId        String
+  fromAgent          Agent            @relation("PaymentFrom", fields: [fromAgentId], references: [id])
+  toAgentId          String
+  toAgent            Agent            @relation("PaymentTo", fields: [toAgentId], references: [id])
+  amount             Decimal
+  currency           String
+  transactionHash    String           @unique
+  status             String           @default("pending")
+  paymentProofToken  String?
+  createdAt          DateTime         @default(now())
+  paidAt             DateTime?
+  delivery           ServiceDelivery?
+}
+
+model ServiceDelivery {
+  id        String       @id @default(uuid())
+  paymentId String       @unique
+  payment   AgentPayment @relation(fields: [paymentId], references: [id])
+  service   String
+  /// JSON payload of mock service result
+  payload   String
+  status    String       @default("delivered")
+  createdAt DateTime     @default(now())
 }

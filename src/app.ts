@@ -16,6 +16,7 @@ import orderRoutes from './routes/orderRoutes';
 import adminRoutes from './routes/adminRoutes';
 import devRoutes from './routes/devRoutes';
 import uiSupportRoutes from './routes/uiSupportRoutes';
+import agentCommerceRoutes from './routes/agentCommerceRoutes';
 import { handleWebhookSinkPost } from './dev/webhookSink';
 
 function buildCorsOptions(): cors.CorsOptions {
@@ -112,6 +113,7 @@ export function createApp(): Express {
   app.use('/api/orders', ordersLimiter, orderRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/console', uiSupportRoutes);
+  app.use('/api', agentCommerceRoutes);
 
   if (!isProduction) {
     app.use('/api/dev', devRoutes);

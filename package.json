@@ -1,7 +1,7 @@
 {
   "name": "agent-payment",
   "version": "1.0.0",
-  "description": "Agent-to-Agent Payment Validation Platform (MVP)",
+  "description": "Autonomous Agent-to-Agent Commerce & Payment Demo (hackathon MVP — mock funds only)",
   "main": "dist/server.js",
   "scripts": {
     "dev": "npm run build && node --watch dist/server.js",

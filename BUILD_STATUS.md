@@ -1,57 +1,55 @@
-# BUILD_STATUS
+# BUILD_STATUS (v2)
 
-Generated after implementing the Agent-to-Agent Payment Validation Platform MVP.
+## Summary
+
+| Check | Result |
+|---|---|
+| `npm run build` | **PASS** |
+| `npm test` | **PASS** — 34 passed / 34 total |
+| `npm run test:coverage` | **PASS** — core business logic covered (see Jest report) |
+| Demo mode | Mock only — **NO REAL FUNDS** |
 
 ## Module status
 
 | Module | Built | Tested | Test Result | Notes |
 |---|---|---|---|---|
-| Auth (register/login) | Yes | Yes | Pass | bcryptjs hashing + JWT; unit + integration coverage |
-| Listings CRUD | Yes | Yes | Pass | Ownership checks enforced; webhook secret returned once on create |
-| Public catalog API | Yes | Yes | Pass | Strips `payoutAddress` and `providerWebhookSecret` |
-| Order creation | Yes | Yes | Pass | `pending_payment` + unique `paymentReference` + expiry |
-| Mock payment verifier | Yes | Yes | Pass | `POST /api/dev/mock-pay/:orderId` (non-production) |
-| Payment confirmation + webhook signing | Yes | Yes | Pass | JWT confirmation + HMAC-SHA256 `X-Signature` |
-| Webhook delivery + retry/logging | Yes | Yes | Pass | Timeout + backoff; rows in `WebhookDeliveryLog` |
-| Admin payout marking | Yes | Yes | Pass | Manual `paid` → `payout_sent` only |
-| Rate limiting / security middleware | Yes | Partial | Pass | helmet, cors, rate limits present; not exhaustively load-tested |
-| OpenAPI spec | Yes | N/A | N/A | Hand-maintained `docs/openapi.yaml` |
-| README / ARCHITECTURE docs | Yes | N/A | N/A | Includes compliance disclaimer + curl demo flow |
-| Overall test suite | Yes | Yes | Pass | See summary below |
+| Auth (register/login) | Yes | Yes | Pass | Legacy walkthrough |
+| Listings CRUD + public catalog | Yes | Yes | Pass | + optional `agentId`/`capability` |
+| Orders + MockPaymentVerifier | Yes | Yes | Pass | Unchanged for walkthrough |
+| Webhooks + HMAC | Yes | Yes | Pass | Unchanged |
+| Admin payout | Yes | Yes | Pass | Secondary in v2 story |
+| Architecture Walkthrough (11 phases) | Yes | Yes | Pass | Kept as Mode 2 |
+| Agents + discovery | Yes | Yes | Pass | `GET /api/agents`, `/api/offers` |
+| AgentDecisionEngine | Yes | Yes | Pass | Cheapest provider |
+| Quotes + negotiation | Yes | Yes | Pass | Deterministic ≥80% |
+| Spending policy | Yes | Yes | Pass | Max tx / daily / token |
+| MockWallet | Yes | Yes | Pass | Simulated USDC balances |
+| PaymentService + proof | Yes | Yes | Pass | JWT agent_payment_proof |
+| Service delivery | Yes | Yes | Pass | Mock weather/crypto/translate |
+| Autonomous one-click demo | Yes | Yes | Pass | `POST /api/demo/autonomous` |
+| Autonomous UI timeline | Yes | Manual + API | Pass | Default home view |
+| Docs (EN) | Yes | N/A | N/A | README, ARCHITECTURE, AGENT_FLOW, API, DEMO |
 
-## Overall test suite (actual run)
-
-Command: `npm run test:coverage`
+## Overall test suite (actual)
 
 ```
-Test Suites: 6 passed, 6 total
-Tests:       25 passed, 25 total
-Snapshots:   0 total
-
-Coverage (statements / lines):
-  All files: 84.11% stmts, 84.66% lines
+Test Suites: 9 passed, 9 total
+Tests:       34 passed, 34 total
 ```
 
-Reconfirmed with `npm test`: **25 passed / 25 total**.
+Including: legacy unit/integration + `v2Commerce` + `autonomousDemo` + `phasedDemo`.
 
 ## Known Limitations
 
-- Mock payment only — no real custody, chain watcher, or bank rails.
-- Payouts are manual admin marks; funds are never moved by the platform.
-- `providerWebhookSecret` stored plaintext in SQLite (MVP convenience; encrypt at rest for production).
-- Admin role can be self-registered (demo convenience).
-- Anonymous buyer API-key flow not implemented (buyers register as `BUYER`).
-- TestnetPaymentVerifier stretch goal not implemented.
-- No admin UI — curl/Postman demo only.
-- Native `bcrypt` replaced with `bcryptjs` for reliable installs on Node 24.
+- All wallets/payments are mock; no chain, bank, or custody.
+- Decision engine is deterministic rules — not an LLM.
+- Seller service results are canned JSON.
+- Architecture walkthrough and autonomous demo share the same SQLite DB; re-seed before demos if balances drift.
+- Admin payout is legacy and not part of the autonomous story.
 
-## Suggested Next Steps for Production
+## Suggested Next Steps (not in scope)
 
-1. Legal review of money-transmission / payment-facilitator rules in target jurisdictions.
-2. KYC/AML onboarding for providers and buyers.
-3. Replace `MockPaymentVerifier` with a licensed processor or audited custodial partner.
-4. Automate payouts only via that partner — never hold private keys in this service.
-5. Encrypt webhook secrets at rest (KMS) and harden admin provisioning.
-6. Independent security audit (authz, webhook SSRF protections, rate limits, secrets).
-7. Swap SQLite → PostgreSQL via Prisma datasource URL change and run migrations.
-8. Add durable job runner for webhook retries at scale (still optional vs MVP monolith).
+- Optional LLM decision engine behind a feature flag
+- PostgreSQL for multi-user demos
+- Audited payment partner behind `PaymentVerifier` / wallet interface
+- Security audit before any real funds
