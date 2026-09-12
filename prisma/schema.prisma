@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PROVIDER
+  BUYER
+  ADMIN
+}
+
+enum OrderStatus {
+  pending_payment
+  paid
+  expired
+  failed
+  payout_sent
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime  @default(now())
+  listings     Listing[]
+  orders       Order[]
+}
+
+model Listing {
+  id                    String   @id @default(uuid())
+  providerId            String
+  provider              User     @relation(fields: [providerId], references: [id])
+  serviceName           String
+  description           String
+  providerServerDomain  String
+  price                 Decimal
+  currency              String
+  payoutAddress         String
+  providerWebhookUrl    String
+  /// Plaintext for MVP webhook HMAC; production should encrypt at rest (see ARCHITECTURE.md)
+  providerWebhookSecret String
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  orders                Order[]
+}
+
+model Order {
+  id                   String              @id @default(uuid())
+  listingId            String
+  listing              Listing             @relation(fields: [listingId], references: [id])
+  buyerId              String?
+  buyer                User?               @relation(fields: [buyerId], references: [id])
+  buyerDeliveryDomain  String
+  amount               Decimal
+  currency             String
+  paymentReference     String              @unique
+  status               OrderStatus         @default(pending_payment)
+  confirmationToken    String?
+  createdAt            DateTime            @default(now())
+  paidAt               DateTime?
+  expiresAt            DateTime
+  webhookLogs          WebhookDeliveryLog[]
+}
+
+model WebhookDeliveryLog {
+  id              String   @id @default(uuid())
+  orderId         String
+  order           Order    @relation(fields: [orderId], references: [id])
+  targetUrl       String
+  httpStatus      Int?
+  responseSnippet String?
+  attemptedAt     DateTime @default(now())
+  success         Boolean
+}

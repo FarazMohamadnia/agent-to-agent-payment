@@ -1,0 +1,256 @@
+openapi: 3.0.3
+info:
+  title: Agent-to-Agent Payment Validation Platform API
+  version: 1.0.0
+  description: |
+    MVP escrow notification / payment-proof broker.
+    Demo only — does not custody real funds.
+servers:
+  - url: http://localhost:3000
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+  /api/auth/register:
+    post:
+      summary: Register user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, role]
+              additionalProperties: false
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                role: { type: string, enum: [PROVIDER, BUYER, ADMIN] }
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Validation error
+        '409':
+          description: Email taken
+  /api/auth/login:
+    post:
+      summary: Login
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              additionalProperties: false
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200':
+          description: JWT issued
+        '401':
+          description: Invalid credentials
+  /api/listings:
+    post:
+      summary: Create listing
+      tags: [Listings]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateListing'
+      responses:
+        '201':
+          description: Listing created (includes providerWebhookSecret once)
+  /api/listings/mine:
+    get:
+      summary: List own listings
+      tags: [Listings]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Provider listings
+  /api/listings/{id}:
+    patch:
+      summary: Update own listing
+      tags: [Listings]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateListing'
+      responses:
+        '200':
+          description: Updated
+        '403':
+          description: Not owner
+    delete:
+      summary: Deactivate own listing
+      tags: [Listings]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Deactivated
+  /api/public/listings:
+    get:
+      summary: Public catalog of active listings
+      tags: [Public]
+      responses:
+        '200':
+          description: Safe listing fields only
+  /api/public/listings/{id}:
+    get:
+      summary: Public listing detail
+      tags: [Public]
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Listing
+        '404':
+          description: Not found
+  /api/orders:
+    post:
+      summary: Create order
+      tags: [Orders]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [listingId, buyerDeliveryDomain]
+              additionalProperties: false
+              properties:
+                listingId: { type: string, format: uuid }
+                buyerDeliveryDomain: { type: string }
+      responses:
+        '201':
+          description: Order created with paymentReference
+  /api/orders/{id}/status:
+    get:
+      summary: Get order status
+      tags: [Orders]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Order status (+ confirmationToken if paid)
+        '403':
+          description: Forbidden
+  /api/orders/{id}/verify-payment:
+    post:
+      summary: On-demand payment verification
+      tags: [Orders]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Verification result
+        '409':
+          description: Already paid / invalid state
+        '410':
+          description: Expired
+  /api/admin/orders:
+    get:
+      summary: List all orders
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Orders
+  /api/admin/orders/{id}/payout:
+    patch:
+      summary: Mark payout sent (manual MVP)
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Order marked payout_sent
+  /api/dev/mock-pay/{orderId}:
+    post:
+      summary: Mark order paid in MockPaymentVerifier (non-production only)
+      tags: [Dev]
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Marked
+        '404':
+          description: Hidden in production
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    IdPath:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  schemas:
+    CreateListing:
+      type: object
+      additionalProperties: false
+      required:
+        - serviceName
+        - description
+        - providerServerDomain
+        - price
+        - currency
+        - payoutAddress
+        - providerWebhookUrl
+      properties:
+        serviceName: { type: string }
+        description: { type: string }
+        providerServerDomain: { type: string }
+        price: { oneOf: [{ type: string }, { type: number }] }
+        currency: { type: string }
+        payoutAddress: { type: string }
+        providerWebhookUrl: { type: string, format: uri }
+    UpdateListing:
+      type: object
+      additionalProperties: false
+      properties:
+        serviceName: { type: string }
+        description: { type: string }
+        providerServerDomain: { type: string }
+        price: { oneOf: [{ type: string }, { type: number }] }
+        currency: { type: string }
+        payoutAddress: { type: string }
+        providerWebhookUrl: { type: string, format: uri }
+        isActive: { type: boolean }
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details: {}

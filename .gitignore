@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.env
+*.db
+*.db-journal
+prisma/dev.db
+prisma/test.db
+.DS_Store
+*.log
+.vscode/
+.idea/
