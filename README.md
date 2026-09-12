@@ -22,6 +22,19 @@ npm run dev
 
 API listens on `http://localhost:3000` by default.
 
+### Demo UI
+
+Open **http://localhost:3000/** for the English ops console:
+
+- Auth (login/register + one-click demo accounts)
+- Public catalog
+- Provider listings CRUD
+- Buyer order → mock pay → verify → status
+- Admin orders + payout mark
+- Live **server activity**, **client error log**, and **webhook delivery logs**
+
+Static assets are served from `/ui/*`.
+
 ### Scripts
 
 | Script | Purpose |

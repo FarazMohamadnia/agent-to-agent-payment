@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgentPay Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/ui/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">AP</div>
+        <div>
+          <div class="brand-name">AgentPay</div>
+          <div class="brand-sub">Demo console</div>
+        </div>
+      </div>
+      <nav class="nav" id="nav">
+        <button type="button" data-view="auth" class="nav-btn active">Auth</button>
+        <button type="button" data-view="catalog" class="nav-btn">Public catalog</button>
+        <button type="button" data-view="provider" class="nav-btn">Provider</button>
+        <button type="button" data-view="buyer" class="nav-btn">Buyer</button>
+        <button type="button" data-view="admin" class="nav-btn">Admin</button>
+        <button type="button" data-view="logs" class="nav-btn">Logs & errors</button>
+      </nav>
+      <div class="session" id="sessionBox">
+        <div class="muted">Not signed in</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="viewTitle">Auth</h1>
+          <p class="muted" id="viewHint">Sign in with seed accounts or register a new user.</p>
+        </div>
+        <div class="top-actions">
+          <span class="pill" id="envPill">localhost</span>
+          <button type="button" class="btn ghost" id="btnLogout">Sign out</button>
+        </div>
+      </header>
+
+      <section class="view" id="view-auth">
+        <div class="grid-2">
+          <form id="formLogin" class="panel">
+            <h2>Sign in</h2>
+            <label>Email<input name="email" type="email" required value="buyer@demo.local" /></label>
+            <label>Password<input name="password" type="password" required value="Password123!" /></label>
+            <button class="btn primary" type="submit">Sign in</button>
+            <div class="quick-logins">
+              <button type="button" class="btn soft" data-login="provider@demo.local">Provider</button>
+              <button type="button" class="btn soft" data-login="buyer@demo.local">Buyer</button>
+              <button type="button" class="btn soft" data-login="admin@demo.local">Admin</button>
+            </div>
+          </form>
+          <form id="formRegister" class="panel">
+            <h2>Register</h2>
+            <label>Email<input name="email" type="email" required /></label>
+            <label>Password<input name="password" type="password" required minlength="8" /></label>
+            <label>Role
+              <select name="role">
+                <option value="BUYER">BUYER</option>
+                <option value="PROVIDER">PROVIDER</option>
+                <option value="ADMIN">ADMIN</option>
+              </select>
+            </label>
+            <button class="btn primary" type="submit">Create account</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="view hidden" id="view-catalog">
+        <div class="toolbar">
+          <button type="button" class="btn primary" id="btnLoadCatalog">Load catalog</button>
+        </div>
+        <div id="catalogList" class="cards"></div>
+        <form id="formCatalogDetail" class="panel compact">
+          <h2>Listing detail</h2>
+          <label>Listing ID<input name="id" required placeholder="uuid" /></label>
+          <button class="btn" type="submit">Fetch</button>
+          <pre class="code" id="catalogDetail"></pre>
+        </form>
+      </section>
+
+      <section class="view hidden" id="view-provider">
+        <div class="grid-2">
+          <form id="formCreateListing" class="panel">
+            <h2>Create listing</h2>
+            <label>Service name<input name="serviceName" required value="Demo Agent API" /></label>
+            <label>Description<textarea name="description" required>Demo service for UI testing</textarea></label>
+            <label>Provider server domain<input name="providerServerDomain" required value="https://provider.example.com" /></label>
+            <label>Price<input name="price" required value="5.00" /></label>
+            <label>Currency<input name="currency" required value="USDT" /></label>
+            <label>Payout address<input name="payoutAddress" required value="TDemoPayout" /></label>
+            <label>Webhook URL<input name="providerWebhookUrl" type="url" required value="https://webhook.site/replace-me" /></label>
+            <button class="btn primary" type="submit">Create</button>
+            <pre class="code" id="createListingOut"></pre>
+          </form>
+          <div class="panel">
+            <div class="toolbar">
+              <h2>My listings</h2>
+              <button type="button" class="btn" id="btnMineListings">Refresh</button>
+            </div>
+            <div id="mineListings" class="stack"></div>
+            <form id="formPatchListing" class="stack gap">
+              <h3>Update / deactivate</h3>
+              <label>Listing ID<input name="id" required /></label>
+              <label>New name<input name="serviceName" placeholder="optional" /></label>
+              <label>Active?
+                <select name="isActive">
+                  <option value="">No change</option>
+                  <option value="true">true</option>
+                  <option value="false">false</option>
+                </select>
+              </label>
+              <div class="row">
+                <button class="btn" type="submit">PATCH</button>
+                <button class="btn danger" type="button" id="btnDeactivateListing">DELETE (deactivate)</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="view hidden" id="view-buyer">
+        <div class="grid-2">
+          <form id="formCreateOrder" class="panel">
+            <h2>Create order</h2>
+            <label>Listing ID<input name="listingId" required /></label>
+            <label>Buyer delivery domain<input name="buyerDeliveryDomain" required value="https://buyer.example.com/inbox" /></label>
+            <button class="btn primary" type="submit">Create order</button>
+            <pre class="code" id="createOrderOut"></pre>
+          </form>
+          <div class="panel stack gap">
+            <h2>Pay & verify</h2>
+            <label>Order ID<input id="orderIdInput" placeholder="order uuid" /></label>
+            <div class="row wrap">
+              <button type="button" class="btn soft" id="btnMockPay">Mock Pay</button>
+              <button type="button" class="btn primary" id="btnVerifyPay">Verify Payment</button>
+              <button type="button" class="btn" id="btnOrderStatus">Order status</button>
+            </div>
+            <pre class="code" id="orderActionOut"></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="view hidden" id="view-admin">
+        <div class="toolbar">
+          <button type="button" class="btn primary" id="btnAdminOrders">List all orders</button>
+        </div>
+        <div id="adminOrders" class="stack"></div>
+        <form id="formPayout" class="panel compact">
+          <h2>Mark payout sent</h2>
+          <label>Order ID<input name="id" required /></label>
+          <button class="btn primary" type="submit">Mark payout_sent</button>
+          <pre class="code" id="payoutOut"></pre>
+        </form>
+      </section>
+
+      <section class="view hidden" id="view-logs">
+        <div class="toolbar">
+          <button type="button" class="btn primary" id="btnRefreshActivity">Refresh activity</button>
+          <button type="button" class="btn" id="btnRefreshWebhooks">Webhook logs</button>
+          <button type="button" class="btn ghost" id="btnClearActivity">Clear activity</button>
+          <button type="button" class="btn ghost" id="btnClearClientLog">Clear client log</button>
+          <label class="check"><input type="checkbox" id="autoRefresh" checked /> Auto-refresh</label>
+        </div>
+        <div class="grid-2">
+          <div class="panel">
+            <h2>Server activity</h2>
+            <div id="serverLog" class="log-stream"></div>
+          </div>
+          <div class="panel">
+            <h2>Client log / errors</h2>
+            <div id="clientLog" class="log-stream"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Webhook delivery logs</h2>
+          <div id="webhookLogs" class="stack"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="toast" class="toast hidden"></div>
+  <script src="/ui/app.js"></script>
+</body>
+</html>

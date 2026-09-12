@@ -1,3 +1,4 @@
+import path from 'path';
 import express, { Express } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -6,6 +7,7 @@ import pinoHttp from 'pino-http';
 import { env, isProduction } from './config/env';
 import { logger } from './config/logger';
 import { requestId } from './middleware/requestId';
+import { activityLogger } from './middleware/activityLogger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import authRoutes from './routes/authRoutes';
 import listingRoutes from './routes/listingRoutes';
@@ -13,6 +15,7 @@ import publicRoutes from './routes/publicRoutes';
 import orderRoutes from './routes/orderRoutes';
 import adminRoutes from './routes/adminRoutes';
 import devRoutes from './routes/devRoutes';
+import uiSupportRoutes from './routes/uiSupportRoutes';
 
 function buildCorsOptions(): cors.CorsOptions {
   const origins = env.CORS_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean);
@@ -36,6 +39,7 @@ export function createApp(): Express {
 
   app.disable('x-powered-by');
   app.use(requestId);
+  app.use(activityLogger);
   app.use(
     pinoHttp({
       logger,
@@ -43,9 +47,29 @@ export function createApp(): Express {
       autoLogging: env.NODE_ENV !== 'test',
     }),
   );
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", 'https://fonts.googleapis.com'],
+          fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+          imgSrc: ["'self'", 'data:'],
+          connectSrc: ["'self'"],
+        },
+      },
+    }),
+  );
   app.use(cors(buildCorsOptions()));
   app.use(express.json({ limit: '1mb' }));
+
+  const publicDir = path.join(__dirname, '..', 'public');
+  app.use('/ui', express.static(publicDir));
+  app.get('/', (_req, res) => {
+    res.sendFile(path.join(publicDir, 'index.html'));
+  });
 
   const authLimiter = rateLimit({
     windowMs: env.RATE_LIMIT_WINDOW_MS,
@@ -76,6 +100,7 @@ export function createApp(): Express {
   app.use('/api/public', publicRoutes);
   app.use('/api/orders', ordersLimiter, orderRoutes);
   app.use('/api/admin', adminRoutes);
+  app.use('/api/console', uiSupportRoutes);
 
   if (!isProduction) {
     app.use('/api/dev', devRoutes);
