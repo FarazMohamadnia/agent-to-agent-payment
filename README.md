@@ -58,12 +58,21 @@ Open **http://localhost:3000/**
 
 > **This is a demo/MVP.** It does not custody real user funds, does not perform KYC/AML, and does not automate real payouts. Before handling real money movement between users, this project would require: (a) legal review of money-transmission/payment-facilitator regulations in the relevant jurisdictions, (b) KYC/AML procedures, (c) a licensed payment processor or custodial partner instead of the mock verifier, and (d) a security audit. The `PaymentVerifier` interface and mock wallet are intentionally pluggable so a compliant, audited payment backend can be substituted later without changing the rest of the system.
 
-## Docs
+## 3-minute ETHGlobal video
+
+- **MP4 (English voiceover):** `demo-output/Agent-Economy-ETHGlobal-2026-Demo.mp4`
+- **Script / regenerate:** [docs/VIDEO_SCRIPT_3MIN.md](./docs/VIDEO_SCRIPT_3MIN.md)
+- **Interactive reel:** http://localhost:3000/ui/video-reel.html
+
+```bash
+.venv-video/bin/python scripts/generate-ethglobal-video.py
+```
 
 - [ARCHITECTURE.md](./ARCHITECTURE.md)
 - [docs/AGENT_FLOW.md](./docs/AGENT_FLOW.md)
 - [docs/API.md](./docs/API.md)
 - [docs/DEMO.md](./docs/DEMO.md)
+- [docs/VIDEO_SCRIPT_3MIN.md](./docs/VIDEO_SCRIPT_3MIN.md) — 3-minute video script + reel
 - [docs/openapi.yaml](./docs/openapi.yaml)
 - [docs/webhook-contract.md](./docs/webhook-contract.md)
 - [BUILD_STATUS.md](./BUILD_STATUS.md)

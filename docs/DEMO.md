@@ -34,6 +34,12 @@ Use this mode to explain platform internals to judges/technical audiences.
 | buyer@demo.local | Password123! | BUYER |
 | admin@demo.local | Password123! | ADMIN |
 
-## Pitch (30 seconds)
+Optional second clip: open the main app and click **Start Autonomous Agent Transaction**.
+
+## 3-minute video
+
+See **[docs/VIDEO_SCRIPT_3MIN.md](./VIDEO_SCRIPT_3MIN.md)** and open:
+
+**http://localhost:3000/ui/video-reel.html** → Play 3-min reel → screen-record.
 
 > A Buyer Agent can discover another Agent, choose its service, agree on a price, follow its spending rules, make a simulated USDC payment, generate payment proof, and receive the service — with no human manually coordinating the transaction.

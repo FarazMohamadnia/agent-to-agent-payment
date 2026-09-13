@@ -1,12 +1,33 @@
+# Dependencies
 node_modules/
+
+# Build / test output
 dist/
 coverage/
+
+# Environment & secrets
 .env
+.env.local
+.env.*.local
+
+# Local databases
 *.db
 *.db-journal
 prisma/dev.db
 prisma/test.db
-.DS_Store
+
+# Video generation scratch
+.venv-video/
+demo-output/assets/
+demo-output/.DS_Store
+
+# Logs & OS / IDE
 *.log
+.DS_Store
 .vscode/
 .idea/
+*.swp
+*.swo
+.AppleDouble
+.LSOverride
+Thumbs.db

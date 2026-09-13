@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agent Economy — ETHGlobal 2026 Demo Reel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/ui/video-reel.css" />
+</head>
+<body>
+  <div class="reel">
+    <header class="reel-bar">
+      <div class="brand-line">
+        <span class="eth-tag">ETHGlobal 2026</span>
+        <strong>Agent Economy</strong>
+        <span class="badge">DEMO MODE — NO REAL FUNDS</span>
+      </div>
+      <div class="reel-controls">
+        <label class="voice-toggle"><input type="checkbox" id="voiceOn" checked /> Voiceover</label>
+        <span id="clock">0:00 / 3:00</span>
+        <button type="button" class="btn" id="btnPlay">Play demo reel</button>
+        <a class="btn ghost" href="/">Back to app</a>
+      </div>
+    </header>
+
+    <div class="progress"><div id="progressFill"></div></div>
+
+    <main class="stage" id="stage">
+      <section class="slide active">
+        <p class="eyebrow">ETHGlobal 2026 · Agent payments</p>
+        <h1>Autonomous Agent-to-Agent Commerce</h1>
+        <p class="lead">
+          A Buyer Agent discovers a Seller Agent, agrees on price, pays with simulated USDC,
+          proves settlement, and receives a service — with one human click.
+        </p>
+        <p class="hint">Enable Voiceover, click Play, then screen-record — or use the generated MP4 in <code>/demo-output</code>.</p>
+      </section>
+    </main>
+
+    <aside class="narration" id="narration">
+      Voiceover script appears here during playback.
+    </aside>
+  </div>
+  <script src="/ui/video-reel.js"></script>
+</body>
+</html>
