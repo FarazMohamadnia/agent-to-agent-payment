@@ -30,6 +30,8 @@ FORMS=(
   "F05-operations-automation:F05-عملیات-و-اتوماسیون"
   "F06-online-digital:F06-حضور-آنلاین-و-دیجیتال"
   "F07-team-priorities:F07-تیم-مشکلات-و-اولویت‌ها"
+  "F08-physical-digital-security:F08-امنیت-فیزیکی-و-دیجیتال"
+  "F09-bottlenecks-ai-replacement:F09-گلوگاه‌ها-و-جایگزینی-با-AI"
 )
 
 echo "Using: $CHROME"
